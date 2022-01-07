@@ -1,0 +1,6 @@
+*.pyc
+/__pycache__/*
+
+picamera.*
+picamera1.*
+picamera2.*

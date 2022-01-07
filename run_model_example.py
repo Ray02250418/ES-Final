@@ -10,10 +10,18 @@ import subprocess as sp
 import queue
 from ObjectDetectionCamera import ObjectDetectionCamera
 
-camera = ObjectDetectionCamera('picamera1', 'Sample_TFLite_model')
-thread2 = Thread(target=camera.get_frame)
-thread2.start()
-camera.display()
+camera1 = ObjectDetectionCamera('picamera1', 'Sample_TFLite_model')
+camera2 = ObjectDetectionCamera('picamera2', 'Sample_TFLite_model')
+
+cam1_get_frame = Thread(target=camera1.get_frame)
+cam1_get_frame.start()
+cam1_display = Thread(target=camera1.display)
+cam1_display.start()
+
+cam2_get_frame = Thread(target=camera2.get_frame)
+cam2_get_frame.start()
+cam2_display = Thread(target=camera2.display)
+cam2_display.start()
 
 # Clean up
 cv2.destroyAllWindows()

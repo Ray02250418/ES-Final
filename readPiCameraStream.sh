@@ -1,5 +1,6 @@
 rm -rf picamera1
 rm -rf picamera2
+sleep 5
 if [ -p picamera1 ]
 then 
     rm -rf picamera1

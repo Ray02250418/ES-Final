@@ -23,6 +23,9 @@ cam2_get_frame.start()
 cam2_display = Thread(target=camera2.display)
 cam2_display.start()
 
+# Send new deteced_queue to STM (HTTP server, ws server) each time queue is updated
+# through POST '/'
+
 # Clean up
 cv2.destroyAllWindows()
 #videostream.stop()

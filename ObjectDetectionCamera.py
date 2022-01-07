@@ -9,8 +9,26 @@ import numpy
 import queue
 from tensorflow.lite.python.interpreter import Interpreter
 
+class BoundedQueue():
+    def __init__(self):
+        self.queue = [] # array of array of detectedInstance
+        self.max_size = 60
+    def enqueue(self, item):
+        self.queue.append(item)
+        if len(self.queue) > self.max_size:
+            self.queue.pop(0)
+
+class DetectedInstance():
+    def __init__(self, score=0.0, label='none', box=[0,0,0,0]):
+        self.score = score # float
+        self.label = label # string
+        self.box = box # list of 4 ints
+    def get_data(self):
+        return self.score, self.label, self.box
+        
 class ObjectDetectionCamera():
     def __init__(self, pipe_name='picamera', model_dir='Sample_TFLite_model'):
+        self.name = pipe_name
         # init queue to store frames
         self.frame_queue = queue.Queue()
         # set pipe
@@ -28,7 +46,7 @@ class ObjectDetectionCamera():
         self.modeldir = model_dir
         self.graph_name = 'detect.tflite'
         self.label_name = 'labelmap.txt'
-        self.min_conf_threshold = 0.5
+        self.min_conf_threshold = 0.5 #tune-able
         self.imW = 1280
         self.imH = 720
 
@@ -60,6 +78,13 @@ class ObjectDetectionCamera():
         self.floating_model = (self.input_details[0]['dtype'] == np.float32) # False
         self.input_mean = 127.5
         self.input_std = 127.5
+        self.targets = ['person', 'bicycle', 'car', 'motorcycle', 'bus', 'truck', 'cat', 'dog']
+
+        self.detected_queue = BoundedQueue()
+    
+    def get_queue(self):
+        return self.detected_queue.queue # arr of arr of detectedInstance
+        # print(f'{self.name} detected queue: ', self.detected_queue.queue)
 
     def display(self):
         frame_num=0
@@ -90,21 +115,24 @@ class ObjectDetectionCamera():
                 classes = self.interpreter.get_tensor(self.output_details[1]['index'])[0] # Class index of detected objects
                 scores = self.interpreter.get_tensor(self.output_details[2]['index'])[0] # Confidence of detected objects
 
-                print('Frame_num: ', frame_num)
-                print()
+                # print('Frame_num: ', frame_num)
+                # print(f'--------------------------{self.name}------------------------')
+                detected_objects = []
                 for i in range(len(scores)):
-                    if (scores[i] > self.min_conf_threshold) and (scores[i]<=1.0):
-                        print('--------------------------------------------------')
-                        print(f'Scores[{i}]: ', scores[i] )
-                        print(f'Classes[{i}]: ', self.labels[int(classes[i])] )
-                        print(f'Boxes[{i}]: ', boxes[i] )
-                print()
+                    if (scores[i] > self.min_conf_threshold) and (scores[i]<=1.0) and (self.labels[int(classes[i])] in self.targets):
+                        # print(f'Scores[{i}]: ', int(scores[i]), type(int(scores[i])) )
+                        # print(f'Classes[{i}]: ', self.labels[int(classes[i])] , type(self.labels[int(classes[i])]))
+                        # print(f'Boxes[{i}]: ', list(boxes[i]), type(list(boxes[i])) )
+                        detected_obj = DetectedInstance(score=int(scores[i]), label=self.labels[int(classes[i])], box=list(boxes[i]))
+                        detected_objects.append(detected_obj) # array of detectedInstance
+                
+                self.detected_queue.enqueue(detected_objects)
                 
                 # Calculate framerate
                 t2 = cv2.getTickCount()
                 time1 = (t2-t1)/self.freq
                 frame_rate_calc= 1/time1
-                print('FPS: {0:.2f}'.format(frame_rate_calc))
+                # print('FPS: {0:.2f}'.format(frame_rate_calc))
 
                 # Press 'q' to quit
                 if cv2.waitKey(1) == ord('q'):

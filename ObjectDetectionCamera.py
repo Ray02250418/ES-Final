@@ -27,7 +27,7 @@ class DetectedInstance():
         return self.score, self.label, self.box
         
 class ObjectDetectionCamera():
-    def __init__(self, pipe_name='picamera', model_dir='Sample_TFLite_model'):
+    def __init__(self, pipe_name='picamera', model_dir='Sample_TFLite_model', min_conf_threshold=0.5):
         self.name = pipe_name
         # init queue to store frames
         self.frame_queue = queue.Queue()
@@ -46,7 +46,7 @@ class ObjectDetectionCamera():
         self.modeldir = model_dir
         self.graph_name = 'detect.tflite'
         self.label_name = 'labelmap.txt'
-        self.min_conf_threshold = 0.5 #tune-able
+        self.min_conf_threshold = min_conf_threshold
         self.imW = 1280
         self.imH = 720
 
@@ -81,10 +81,29 @@ class ObjectDetectionCamera():
         self.targets = ['person', 'bicycle', 'car', 'motorcycle', 'bus', 'truck', 'cat', 'dog']
 
         self.detected_queue = BoundedQueue()
+        self.danger_state = False
     
-    def get_queue(self):
-        return self.detected_queue.queue # arr of arr of detectedInstance
-        # print(f'{self.name} detected queue: ', self.detected_queue.queue)
+    # --------------------------------------------------- TUNEABLE ---------------------------------------------
+    def update_danger_state(self, detected_objects): 
+        # score=0
+        # for frame in self.detected_queue.queue: # arr of arr of detectedInstance
+        #     if frame != []:
+        #         for detectedInstance in frame:
+        #             #score += detectedInstance.score
+        #             if ((detectedInstance.label in self.targets) and (detectedInstance.score > self.min_conf_threshold)):
+        #                 score += 1
+        # if score >= 1:
+        #     self.danger_state = True
+        # else:
+        #     self.danger_state = False
+        if (len(detected_objects)>0):
+            self.danger_state = True
+        else:
+            self.danger_state = False
+    # -----------------------------------------------------------------------------------------------------------
+
+    def get_danger_state(self):
+        return self.danger_state
 
     def display(self):
         frame_num=0
@@ -127,6 +146,10 @@ class ObjectDetectionCamera():
                         detected_objects.append(detected_obj) # array of detectedInstance
                 
                 self.detected_queue.enqueue(detected_objects)
+                self.update_danger_state(detected_objects)
+
+                # print('detected objs: ', detected_objects)
+                # print('Danger state: ',self.danger_state)
                 
                 # Calculate framerate
                 t2 = cv2.getTickCount()

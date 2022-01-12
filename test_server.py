@@ -5,9 +5,8 @@ async def hello(websocket):
     name = await websocket.recv()
     print(f'<< {name}')
 
-    resp = 'Hello, STM!'
-    await websocket.send(resp)
-    print(f">> {resp}")
+    await websocket.send(name)
+    print(f">> echo: {name}")
 
 async def main():
     async with websockets.serve(hello, "localhost", 8001):

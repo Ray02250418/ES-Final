@@ -9,7 +9,7 @@ async def hello(websocket):
     print(f">> echo: {name}")
 
 async def main():
-    async with websockets.serve(hello, "localhost", 8001):
+    async with websockets.serve(hello, "172.20.10.3", 6666):
         await asyncio.Future()  # run forever
 
 asyncio.run(main())

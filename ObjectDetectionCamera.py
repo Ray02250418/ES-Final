@@ -31,6 +31,7 @@ class ObjectDetectionCamera():
         self.name = pipe_name
         # init queue to store frames
         self.frame_queue = queue.Queue()
+        # self.frame_queue = []
         # set pipe
         FFMPEG_BIN = "ffmpeg"
         command = [ FFMPEG_BIN,
@@ -97,8 +98,10 @@ class ObjectDetectionCamera():
         # else:
         #     self.danger_state = False
         if (len(detected_objects)>0):
+            print(detected_objects[0].label)
             self.danger_state = True
         else:
+            print('no danger')
             self.danger_state = False
     # -----------------------------------------------------------------------------------------------------------
 
@@ -135,7 +138,7 @@ class ObjectDetectionCamera():
                 scores = self.interpreter.get_tensor(self.output_details[2]['index'])[0] # Confidence of detected objects
 
                 # print('Frame_num: ', frame_num)
-                print(f'--------------------------{self.name}------------------------')
+                # print(f'--------------------------{self.name}------------------------')
                 detected_objects = []
                 for i in range(len(scores)):
                     if (scores[i] > self.min_conf_threshold) and (scores[i]<=1.0) and (self.labels[int(classes[i])] in self.targets):
@@ -169,7 +172,7 @@ class ObjectDetectionCamera():
             image =  numpy.frombuffer(raw_image, dtype='uint8')
             try:
                 image = image.reshape((480,640,3))  
-                self.frame_queue.put(image)        # Notice how height is specified first and then width
+                self.frame_queue.put(image)     # Notice how height is specified first and then width
             except:
                 continue
             self.pipe.stdout.flush()

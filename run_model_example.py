@@ -13,9 +13,9 @@ from ObjectDetectionCamera import ObjectDetectionCamera
 import asyncio
 import websockets
 
-camera1 = ObjectDetectionCamera('picamera1', 'Sample_TFLite_model', 0.6) # 192.168.50.86
-camera2 = ObjectDetectionCamera('picamera2', 'Sample_TFLite_model', 0.6) # 192.168.50.243
-
+camera1 = ObjectDetectionCamera('picamera1', 'Sample_TFLite_model', 0.5) # 192.168.50.86
+camera2 = ObjectDetectionCamera('picamera2', 'Sample_TFLite_model', 0.5) # 192.168.50.243
+#127.20.10.7
 cam1_get_frame = Thread(target=camera1.get_frame)
 cam1_get_frame.start()
 cam1_display = Thread(target=camera1.display)
@@ -51,13 +51,13 @@ async def hello(websocket):
     print(f"send danger state to camera {camera_num} >> {danger_state}")
 
 async def main():
-    async with websockets.serve(hello, "localhost", 8000):
+    async with websockets.serve(hello, "192.168.50.96", 9000):
         await asyncio.Future()  # run forever
 
 def stm_server():
     with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
-        HOST="140.112.151.152"
-        PORT=8000
+        HOST="140.112.87.160"
+        PORT=11115
         s.bind((HOST, PORT))
         s.listen(0)
         while True:
@@ -79,9 +79,10 @@ def stm_server():
                     else:
                         danger_state_2='0'
 
-                    return_msg = danger_state_1+danger_state_2
+                    return_msg = danger_state_2+danger_state_1
+                    print(return_msg)
                     conn.send(return_msg.encode('utf-8'))
-                    print('Responsed from socket server : ', return_msg)
+                    #print('Responsed from socket server : ', return_msg)
 
 
 server_num=1

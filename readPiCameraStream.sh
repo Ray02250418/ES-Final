@@ -11,5 +11,5 @@ then
 fi
 mkfifo picamera1
 mkfifo picamera2
-nc -l 8080 -v > picamera1 &
-nc -l 8081 -v > picamera2
+nc -l 8085 -v > picamera1 &
+nc -l 8083 -v > picamera2

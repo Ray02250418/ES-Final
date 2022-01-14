@@ -135,7 +135,7 @@ class ObjectDetectionCamera():
                 scores = self.interpreter.get_tensor(self.output_details[2]['index'])[0] # Confidence of detected objects
 
                 # print('Frame_num: ', frame_num)
-                # print(f'--------------------------{self.name}------------------------')
+                print(f'--------------------------{self.name}------------------------')
                 detected_objects = []
                 for i in range(len(scores)):
                     if (scores[i] > self.min_conf_threshold) and (scores[i]<=1.0) and (self.labels[int(classes[i])] in self.targets):

@@ -13,8 +13,8 @@ from ObjectDetectionCamera import ObjectDetectionCamera
 import asyncio
 import websockets
 
-camera1 = ObjectDetectionCamera('picamera1', 'Sample_TFLite_model', 0.6)
-camera2 = ObjectDetectionCamera('picamera2', 'Sample_TFLite_model', 0.6)
+camera1 = ObjectDetectionCamera('picamera1', 'Sample_TFLite_model', 0.6) # 192.168.50.86
+camera2 = ObjectDetectionCamera('picamera2', 'Sample_TFLite_model', 0.6) # 192.168.50.243
 
 cam1_get_frame = Thread(target=camera1.get_frame)
 cam1_get_frame.start()
@@ -31,7 +31,7 @@ cam2_display.start()
 async def hello(websocket):
     name = await websocket.recv()
     camera_num = f"{name}"
-    print("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!")
+    # print("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!")
     danger_state = '0'
     if camera_num == '1':
         if camera1.get_danger_state():
@@ -51,17 +51,13 @@ async def hello(websocket):
     print(f"send danger state to camera {camera_num} >> {danger_state}")
 
 async def main():
-    async with websockets.serve(hello, "172.20.10.3", 29999):
+    async with websockets.serve(hello, "localhost", 8000):
         await asyncio.Future()  # run forever
 
-asyncio.run(main())
-
-print("Start!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!")
-print()
 def stm_server():
     with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
-        HOST="172.20.10.3"
-        PORT=30001
+        HOST="140.112.151.152"
+        PORT=8000
         s.bind((HOST, PORT))
         s.listen(0)
         while True:
@@ -87,8 +83,14 @@ def stm_server():
                     conn.send(return_msg.encode('utf-8'))
                     print('Responsed from socket server : ', return_msg)
 
-# stm_server_thread = Thread(target=stm_server)
-# stm_server_thread.start()
+
+server_num=1
+if server_num==1:
+    stm_server_thread = Thread(target=stm_server) 
+    stm_server_thread.start()
+else:
+    asyncio.run(main())
+
 # Clean up
 cv2.destroyAllWindows()
 #videostream.stop()

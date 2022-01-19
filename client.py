@@ -6,7 +6,7 @@ from inference import detection_model
 # create socket
 client_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 host_ip = '192.168.50.86'  # paste your server ip address here
-port = 9997
+port = 9999
 client_socket.connect((host_ip, port))  # a tuple
 data = b""
 payload_size = struct.calcsize("Q") # Q: unsigned long long integer(8 bytes)
@@ -14,6 +14,7 @@ payload_size = struct.calcsize("Q") # Q: unsigned long long integer(8 bytes)
 # create inference model
 model = detection_model('Sample_TFLite_model', 0.5)
 
+# open another branch to fix this (show image)
 def inference_frame(frame, model):
     # inference
     # Loop over all detections and draw detection box if confidence is above minimum threshold
@@ -54,9 +55,9 @@ while True:
     frame = pickle.loads(frame_data) # de-serialize bytes into actual frame type
 
     (boxes, classes, scores, labels) = model.inference(frame) # inference model
-    #print('---------------------------------')
-    #print(labels)
-    inference_frame(frame, model)
+    print('--------------------------------------------------------------------------------------------------')
+    print(' '*100,labels)
+    #inference_frame(frame, model)
 
     cv2.imshow("RECEIVING VIDEO", frame) # show video frame at client side
     key = cv2.waitKey(1) & 0xFF

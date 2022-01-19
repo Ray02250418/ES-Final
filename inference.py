@@ -65,6 +65,10 @@ class detection_model():
         boxes = self.interpreter.get_tensor(self.output_details[0]['index'])[0] # Bounding box coordinates of detected objects
         classes = self.interpreter.get_tensor(self.output_details[1]['index'])[0] # Class index of detected objects
         scores = self.interpreter.get_tensor(self.output_details[2]['index'])[0] # Confidence of detected objects
+        labels=[]
+        for i in range(len(classes)):
+            if scores[i] >= self.min_conf_threshold:
+                labels.append(self.labels[int(classes[i])])
 
-        return (boxes, classes, scores)
+        return (boxes, classes, scores, labels)
 

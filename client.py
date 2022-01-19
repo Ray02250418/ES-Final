@@ -30,9 +30,9 @@ while True:
     data = data[msg_size:]
     frame = pickle.loads(frame_data) # de-serialize bytes into actual frame type
 
-    (boxes, classes, scores) = model.inference(frame) # inference model
+    (boxes, classes, scores, labels) = model.inference(frame) # inference model
     print('---------------------------------')
-    print(classes)
+    print(labels)
 
     cv2.imshow("RECEIVING VIDEO", frame) # show video frame at client side
     key = cv2.waitKey(1) & 0xFF

@@ -12,7 +12,7 @@ class Camera():
         self.payload_size = struct.calcsize("Q") # Q: unsigned long long integer(8 bytes)
         self.num = num
 
-        # create inference self.model
+        # create inference self.model, second param is threshold
         self.model = detection_model('Sample_TFLite_model', 0.5)
 
     def detect(self):
@@ -32,12 +32,13 @@ class Camera():
             self.data = self.data[msg_size:]
             frame = pickle.loads(frame_data) # de-serialize bytes into actual frame type
 
-            (boxes, classes, scores, labels) = self.model.inference(frame) # inference self.model
+            (boxes, classes, scores, labels) = self.model.inference(frame) # inference by self.model
             print('------------------------------------------------------------------------')
             print(' ' * self.num * 100, self.num, ': ', labels)
-            #inference_frame(frame, self.model)
 
-            # cv2.imshow("RECEIVING VIDEO", frame) # show video frame at client side
+            boxes_frame = self.model.draw_boxes(frame, boxes, classes, scores) # draw boxes on frame
+            cv2.imshow("RECEIVING VIDEO", boxes_frame) # show video frame at client side
+
             key = cv2.waitKey(1) & 0xFF
             if key == ord('q'): # press q to exit video
                 break

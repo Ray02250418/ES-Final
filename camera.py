@@ -11,9 +11,16 @@ class Camera():
         self.data = b""
         self.payload_size = struct.calcsize("Q") # Q: unsigned long long integer(8 bytes)
         self.num = num
+        self.danger_state = False
 
         # create inference self.model, second param is threshold
         self.model = detection_model('Sample_TFLite_model', 0.5)
+
+    def update_danger_state(self, labels):
+        if len(labels)>0:
+            self.danger_state = True
+        else:
+            self.danger_state = False
 
     def detect(self):
         #Business logic to receive self.data frames, and unpak it and de-serialize it and show video frame on client side
@@ -36,8 +43,9 @@ class Camera():
             print('------------------------------------------------------------------------')
             print(' ' * self.num * 100, self.num, ': ', labels)
 
-            boxes_frame = self.model.draw_boxes(frame, boxes, classes, scores) # draw boxes on frame
-            cv2.imshow("RECEIVING VIDEO", boxes_frame) # show video frame at client side
+            # uncomment below to show video frame on client side
+            # boxes_frame = self.model.draw_boxes(frame, boxes, classes, scores) # draw boxes on frame
+            # cv2.imshow("RECEIVING VIDEO", boxes_frame) # show video frame at client side
 
             key = cv2.waitKey(1) & 0xFF
             if key == ord('q'): # press q to exit video

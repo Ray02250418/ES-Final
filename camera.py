@@ -15,7 +15,7 @@ class Camera():
         # create inference self.model
         self.model = detection_model('Sample_TFLite_model', conf_threshold)
 
-    def detect(self, danger):
+    def detect(self, danger, sent):
         #Business logic to receive self.data frames, and unpak it and de-serialize it and show video frame on client side
         while True:
             while len(self.data) < self.payload_size:
@@ -38,9 +38,11 @@ class Camera():
             #inference_frame(frame, self.model)
             
             if len(labels)>0:
-                danger=1
+                danger.value = 1
+                sent.value = 0
             else:
-                danger=0
+                if sent.value == 1:
+                    danger.value=0
 
             # cv2.imshow("RECEIVING VIDEO", frame) # show video frame at client side
             key = cv2.waitKey(1) & 0xFF

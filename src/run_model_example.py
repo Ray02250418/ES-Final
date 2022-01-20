@@ -56,8 +56,8 @@ async def main():
 
 def stm_server():
     with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
-        HOST="140.112.87.160"
-        PORT=11115
+        HOST="140.112.71.131"
+        PORT=11110
         s.bind((HOST, PORT))
         s.listen(0)
         while True:

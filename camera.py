@@ -4,7 +4,7 @@ import cv2
 from inference import detection_model
 
 class Camera():
-    def __init__(self, ip, port, num):
+    def __init__(self, ip, port, num, conf_threshold):
         # create socket
         self.client_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         self.client_socket.connect((ip, port))  # a tuple
@@ -13,9 +13,9 @@ class Camera():
         self.num = num
 
         # create inference self.model
-        self.model = detection_model('Sample_TFLite_model', 0.5)
+        self.model = detection_model('Sample_TFLite_model', conf_threshold)
 
-    def detect(self):
+    def detect(self, danger):
         #Business logic to receive self.data frames, and unpak it and de-serialize it and show video frame on client side
         while True:
             while len(self.data) < self.payload_size:
@@ -36,6 +36,11 @@ class Camera():
             print('------------------------------------------------------------------------')
             print(' ' * self.num * 100, self.num, ': ', labels)
             #inference_frame(frame, self.model)
+            
+            if len(labels)>0:
+                danger=1
+            else:
+                danger=0
 
             # cv2.imshow("RECEIVING VIDEO", frame) # show video frame at client side
             key = cv2.waitKey(1) & 0xFF

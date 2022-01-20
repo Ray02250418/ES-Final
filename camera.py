@@ -4,7 +4,7 @@ import cv2
 from inference import detection_model
 
 class Camera():
-    def __init__(self, ip, port, num):
+    def __init__(self, ip, port, num, conf_threshold):
         # create socket
         self.client_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         self.client_socket.connect((ip, port))  # a tuple
@@ -14,7 +14,7 @@ class Camera():
         self.danger_state = False
 
         # create inference self.model, second param is threshold
-        self.model = detection_model('Sample_TFLite_model', 0.5)
+        self.model = detection_model('Sample_TFLite_model', conf_threshold)
 
     def update_danger_state(self, labels):
         if len(labels)>0:
@@ -43,7 +43,7 @@ class Camera():
             print('------------------------------------------------------------------------')
             print(' ' * self.num * 100, self.num, ': ', labels)
 
-            # uncomment below to show video frame on client side
+            # *** Uncomment below to show video frame on client side ***
             # boxes_frame = self.model.draw_boxes(frame, boxes, classes, scores) # draw boxes on frame
             # cv2.imshow("RECEIVING VIDEO", boxes_frame) # show video frame at client side
 

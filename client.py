@@ -4,18 +4,20 @@ from threading import Thread
 import socket
 
 def setup_camera0(danger, sent):
-    camera0 = Camera('192.168.50.243', 5555, 0, 0.6)
+    print("Left start")
+    camera0 = Camera('172.20.10.2', 5555, 0, 0.6)
     camera0.detect(danger, sent)
     
 def setup_camera1(danger, sent):
-    camera1 = Camera('192.168.50.86', 8888, 1, 0.6)
+    print("Right start")
+    camera1 = Camera('172.20.10.3', 8888, 1, 0.6)
     camera1.detect(danger, sent)
     
 def stm_server(danger_left, danger_right, left_sent, right_sent):
     print("Start STM server")
     with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
-        HOST="140.112.71.131"
-        PORT=15001
+        HOST="140.112.87.45"
+        PORT=18005
         s.bind((HOST, PORT))
         s.listen(0)
         while True:
@@ -40,7 +42,7 @@ def stm_server(danger_left, danger_right, left_sent, right_sent):
                     else:
                         danger_state_2='0'
 
-                    return_msg = danger_state_2+danger_state_1
+                    return_msg = danger_state_1+danger_state_2 
                     print(return_msg)
                     conn.send(return_msg.encode('utf-8'))
                     left_sent.value = 1
@@ -54,8 +56,8 @@ if __name__ == '__main__':
     left_sent = Value('i', 1)
     right_danger = Value('i', 0)
     right_sent = Value('i', 1)
-    Left = Process(target=setup_camera0, args=[left_danger, left_sent])
-    Right = Process(target=setup_camera1, args=[right_danger, right_sent])
+    Left = Process(target=setup_camera1, args=[left_danger, left_sent])
+    Right = Process(target=setup_camera0, args=[right_danger, right_sent])
     server = Process(target=stm_server, args=[left_danger, right_danger, left_sent, right_sent])
     Left.start()
     Right.start()

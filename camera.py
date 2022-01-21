@@ -33,8 +33,9 @@ class Camera():
             frame = pickle.loads(frame_data) # de-serialize bytes into actual frame type
 
             (boxes, classes, scores, labels) = self.model.inference(frame) # inference self.model
-            print('------------------------------------------------------------------------')
-            print(' ' * self.num * 100, self.num, ': ', labels)
+            if len(labels) > 0:
+                print('------------------------------------------------------------------------')
+                print(' ' * self.num * 100, self.num, ': ', labels)
             #inference_frame(frame, self.model)
             
             if len(labels)>0:
@@ -44,7 +45,7 @@ class Camera():
                 if sent.value == 1:
                     danger.value=0
 
-            # cv2.imshow("RECEIVING VIDEO", frame) # show video frame at client side
+            cv2.imshow("RECEIVING VIDEO", frame) # show video frame at client side
             key = cv2.waitKey(1) & 0xFF
             if key == ord('q'): # press q to exit video
                 break
